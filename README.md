@@ -15,6 +15,22 @@ python -m venv .venv
 .venv\Scripts\python app.py
 ```
 
+## Windows installer
+
+Double-click **`build_installer.bat`**. It runs the tests, builds `dist\ClaimForm\ClaimForm.exe` (PyInstaller)
+and wraps it into **`dist\installer\ClaimForm-Setup-<version>.exe`** (Inno Setup 6, which must be installed).
+
+The installed app needs no Python. It opens a small console window and the form in the browser
+(`http://127.0.0.1:5055`); closing the window stops it. Starting it again while it runs just reopens
+the browser. It installs per user (no admin needed) with a Start Menu entry and an optional desktop
+icon, and upgrades in place: raise `AppVersion` in `installer\ClaimForm.iss` for each release.
+
+The exe and installer are **not code-signed**. PCs with *Smart App Control* turned on block them
+("An Application Control policy has blocked this file"), and SmartScreen warns on others
+("More info → Run anyway"). Signing them with a trusted code-signing certificate removes both.
+
+Run the launcher from source with `.venv\Scripts\python desktop.py`.
+
 ## How it works
 
 1. **Fill in** the claim (or click **Load sample data**). Totals update live; the draft is saved in the browser.

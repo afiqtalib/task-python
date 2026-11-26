@@ -61,6 +61,11 @@ def create_app() -> Flask:
         """Company logo - same vector geometry as printed on the PDF."""
         return Response(logo.svg(), mimetype="image/svg+xml", headers={"Cache-Control": "no-cache"})
 
+    @app.get("/api/ping")
+    def ping():
+        """Lets the desktop launcher recognise a copy of the app that is already running."""
+        return jsonify(app=config.APP_ID)
+
     @app.get("/api/sample")
     def sample():
         return jsonify(SAMPLE_CLAIM)

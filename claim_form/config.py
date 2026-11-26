@@ -11,6 +11,9 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Answered by /api/ping so the desktop launcher can recognise a running copy.
+APP_ID = "dbt-claim-form"
+
 # --------------------------------------------------------------------------
 # Company / form identity (printed exactly as on the paper form)
 # --------------------------------------------------------------------------

@@ -30,6 +30,10 @@ def test_logo_svg(client):
     assert "#60D4D3" in body
 
 
+def test_ping_identifies_the_app(client):
+    assert client.get("/api/ping").get_json() == {"app": "dbt-claim-form"}
+
+
 def test_sample_endpoint(client, sample):
     assert client.get("/api/sample").get_json() == sample
 
