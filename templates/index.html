@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Claim Form · DBT Technologies</title>
+	<link rel="icon" type="image/svg+xml" href="{{ url_for('logo_svg') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+
+<body>
+	<header class="topbar">
+		<div class="brand">
+			<img class="brand-mark" src="{{ url_for('logo_svg') }}" alt="" width="38" height="36">
+			<div>
+				<div class="brand-title">Claim</div>
+				<div class="brand-sub">DBT Technologies Sdn Bhd</div>
+			</div>
+		</div>
+		<div class="topbar-actions">
+			<button type="button" class="btn btn-secondary" id="btn-sample">
+				<svg viewBox="0 0 20 20" aria-hidden="true">
+					<path d="M4 3h9l3 3v11H4z M7 9h6 M7 12h6 M7 15h4" fill="none" stroke="currentColor"
+						stroke-width="1.6" stroke-linejoin="round" />
+				</svg>
+				Load sample data
+			</button>
+			<button type="button" class="btn btn-ghost" id="btn-clear">Clear form</button>
+		</div>
+	</header>
+
+	<ol class="stepper" aria-label="Progress">
+		<li class="step is-active" data-step="1"><span class="step-no">1</span>Fill in claim</li>
+		<li class="step" data-step="2"><span class="step-no">2</span>Review generated claim</li>
+		<li class="step" data-step="3"><span class="step-no">3</span>Attach proofs, merge &amp; download</li>
+	</ol>
+
+	<main class="layout">
+		<form id="claim-form" class="form-col" novalidate autocomplete="off">
+
+			<!-- Claimant ------------------------------------------------------ -->
+			<section class="card" aria-labelledby="h-claimant">
+				<header class="card-head">
+					<div class="card-title">
+						<span class="badge badge-icon" aria-hidden="true">
+							<svg viewBox="0 0 20 20">
+								<circle cx="10" cy="7" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7" />
+								<path d="M3.8 17c.8-3.2 3.2-5 6.2-5s5.4 1.8 6.2 5" fill="none" stroke="currentColor"
+									stroke-width="1.7" stroke-linecap="round" />
+							</svg>
+						</span>
+						<div>
+							<h2 id="h-claimant">Claimant details</h2>
+							<p class="muted">Printed at the top of every page.</p>
+						</div>
+					</div>
+				</header>
+
+				<div class="fields">
+					<div class="field">
+						<label for="f-name">Name</label>
+						<input id="f-name" name="name" class="input upper"
+							maxlength="{{ cfg.headerFields.name.maxlength }}" placeholder="e.g. MUHAMMAD"
+							autocomplete="name">
+						<p class="field-error" data-error-for="name" hidden></p>
+					</div>
+					<div class="field">
+						<label for="f-dept">Department</label>
+						<input id="f-dept" name="dept" class="input upper"
+							maxlength="{{ cfg.headerFields.dept.maxlength }}" placeholder="e.g. EPPP">
+						<p class="field-error" data-error-for="dept" hidden></p>
+					</div>
+					<div class="field">
+						<label for="f-month">Month ending</label>
+						<div class="inline-2">
+							<select id="f-month" name="month" class="input">
+								{% for m in cfg.months %}<option value="{{ loop.index }}">{{ m|capitalize }}</option>{%
+								endfor %}
+							</select>
+							<input id="f-year" name="year" class="input" type="number" min="2000" max="2100"
+								inputmode="numeric" aria-label="Year">
+						</div>
+						<p class="field-error" data-error-for="month" hidden></p>
+						<p class="field-error" data-error-for="year" hidden></p>
+					</div>
+				</div>
+
+				<div class="subhead">
+					<h3>Vehicle</h3>
+					<p class="muted">Needed only when you claim mileage.</p>
+				</div>
+				<div class="fields">
+					<div class="field">
+						<label for="f-vno">Vehicle no.</label>
+						<input id="f-vno" name="vehicle_no" class="input upper"
+							maxlength="{{ cfg.headerFields.vehicle_no.maxlength }}" placeholder="e.g. DBS 2580">
+						<p class="field-error" data-error-for="vehicle_no" hidden></p>
+					</div>
+					<div class="field">
+						<label for="f-vmodel">Vehicle model</label>
+						<input id="f-vmodel" name="vehicle_model" class="input upper"
+							maxlength="{{ cfg.headerFields.vehicle_model.maxlength }}" placeholder="e.g. HONDA">
+						<p class="field-error" data-error-for="vehicle_model" hidden></p>
+					</div>
+					<fieldset class="field">
+						<legend>Mileage rate</legend>
+						<div class="segmented" role="radiogroup">
+							<label><input type="radio" name="vehicle_type" value="motorcycle" checked><span>Motorcycle
+									<small>RM {{ cfg.rates.motorcycle }}/km</small></span></label>
+							<label><input type="radio" name="vehicle_type" value="car"><span>Car <small>RM {{
+										cfg.rates.car }}/km</small></span></label>
+						</div>
+						<p class="field-error" data-error-for="vehicle_type" hidden></p>
+					</fieldset>
+				</div>
+			</section>
+
+			<!-- Line-item sections (A-E) ------------------------------------- -->
+			{% for s in cfg.sections %}
+			<section class="card section" data-section="{{ s.key }}" style="--cols: 2rem {{ s.columns }} 4.6rem"
+				aria-labelledby="h-{{ s.key }}">
+				<header class="card-head">
+					<div class="card-title">
+						<span class="badge" aria-hidden="true">{{ s.letter }}</span>
+						<div>
+							<h2 id="h-{{ s.key }}">{{ s.title }}</h2>
+							<p class="muted">{{ s.hint }}</p>
+						</div>
+					</div>
+					<div class="section-total" aria-live="polite"></div>
+				</header>
+
+				<div class="grid-head" aria-hidden="true">
+					<span>#</span>
+					{% for f in s.fields %}<span class="{{ 'num' if f.align == 'right' else '' }}">{{ f.label
+						}}</span>{% endfor %}
+					<span></span>
+				</div>
+				<div class="rows"></div>
+				<div class="empty" hidden>Nothing to claim here? Leave it empty — it prints blank, like the paper form.
+				</div>
+
+				<footer class="card-foot">
+					<button type="button" class="btn btn-soft" data-action="add">
+						<svg viewBox="0 0 20 20" aria-hidden="true">
+							<path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.9"
+								stroke-linecap="round" />
+						</svg>
+						{{ s.add_label }}
+					</button>
+					<button type="button" class="btn btn-ghost btn-sm" data-action="sort">Sort by date</button>
+					<span class="capacity" aria-live="polite"></span>
+				</footer>
+				<p class="section-error" data-error-for="{{ s.key }}" hidden></p>
+			</section>
+			{% endfor %}
+			<datalist id="location-options"></datalist>
+
+			<!-- Signature ---------------------------------------------------- -->
+			<section class="card" aria-labelledby="h-signature">
+				<header class="card-head">
+					<div class="card-title">
+						<span class="badge badge-icon" aria-hidden="true">
+							<svg viewBox="0 0 20 20">
+								<path d="M3 15c2-1 3.5-6 5-6s.5 5 2 5 2.5-3 4-3 1 2 3 2" fill="none"
+									stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+							</svg>
+						</span>
+						<div>
+							<h2 id="h-signature">Prepared by — signature</h2>
+							<p class="muted">Sign with mouse, finger or stylus. Printed in the “PREPARE BY” box.
+								Optional.</p>
+						</div>
+					</div>
+				</header>
+				<div class="sig-wrap">
+					<canvas id="sig-canvas" aria-label="Signature pad"></canvas>
+					<span class="sig-placeholder">Sign here</span>
+					<span class="sig-line" aria-hidden="true"></span>
+				</div>
+				<footer class="card-foot">
+					<button type="button" class="btn btn-ghost btn-sm" id="sig-clear">Clear signature</button>
+					<label class="btn btn-ghost btn-sm">
+						Upload signature image
+						<input type="file" id="sig-upload" accept="image/png,image/jpeg,image/webp" hidden>
+					</label>
+				</footer>
+				<p class="section-error" data-error-for="signature" hidden></p>
+			</section>
+		</form>
+
+		<!-- Live summary ------------------------------------------------------ -->
+		<aside class="summary-col" aria-label="Claim summary">
+			<div class="card summary">
+				<h2>Claim summary</h2>
+				<dl class="sum-list">
+					<div class="sum-km">
+						<dt>Total distance</dt>
+						<dd id="sum-km">0 km</dd>
+					</div>
+					<div class="sum-note">
+						<dt id="sum-rate"></dt>
+						<dd></dd>
+					</div>
+					{% for s in cfg.sections %}
+					<div>
+						<dt>{{ s.letter }}. {{ s.summary }}</dt>
+						<dd id="sum-{{ s.key }}">—</dd>
+					</div>
+					{% endfor %}
+					<div class="sum-total">
+						<dt>Total claim</dt>
+						<dd id="sum-total">RM 0.00</dd>
+					</div>
+				</dl>
+				<label class="check">
+					<input type="checkbox" name="include_travel_sheet" form="claim-form" checked>
+					<span>Include travel detail sheet (page 3)</span>
+				</label>
+				<button type="button" class="btn btn-primary btn-block" data-action="generate">
+					<svg viewBox="0 0 20 20" aria-hidden="true">
+						<path d="M5 2.5h7l3.5 3.5v11.5H5z M12 2.5V6h3.5 M8 11l2 2 3.5-4" fill="none"
+							stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" />
+					</svg>
+					<span class="btn-label">Generate claim</span>
+				</button>
+				<p class="hint">Shows the PDF for review first. You can attach proofs and download afterwards.</p>
+				<p class="status" id="draft-status" aria-live="polite"></p>
+			</div>
+		</aside>
+	</main>
+
+	<!-- Step 2 + 3: review, attach proofs, merge & download -------------------- -->
+	<section class="result" id="result" hidden aria-labelledby="h-result">
+		<div class="card">
+			<header class="card-head">
+				<div class="card-title">
+					<span class="badge" aria-hidden="true">2</span>
+					<div>
+						<h2 id="h-result">Review generated claim</h2>
+						<p class="muted" id="result-meta"></p>
+					</div>
+				</div>
+				<span class="chip chip-ok" id="result-state">Up to date</span>
+			</header>
+			<div class="stale-banner" id="stale-banner" hidden>
+				<svg viewBox="0 0 20 20" aria-hidden="true">
+					<path d="M10 3l8 14H2z M10 8v4 M10 14.5v.5" fill="none" stroke="currentColor" stroke-width="1.7"
+						stroke-linejoin="round" stroke-linecap="round" />
+				</svg>
+				<span>The form changed after this claim was generated.</span>
+				<button type="button" class="btn btn-sm btn-warn" data-action="generate"><span
+						class="btn-label">Regenerate claim</span></button>
+			</div>
+			<div class="preview-frame">
+				<iframe id="preview" title="Generated claim PDF"></iframe>
+			</div>
+		</div>
+
+		<div class="card" aria-labelledby="h-attach">
+			<header class="card-head">
+				<div class="card-title">
+					<span class="badge" aria-hidden="true">3</span>
+					<div>
+						<h2 id="h-attach">Attach proofs</h2>
+						<p class="muted">Medical bills, receipts, parking tickets… They are added after the claim pages,
+							in the order below. Drag <span class="kbd">⠿</span> to reorder.</p>
+					</div>
+				</div>
+				<span class="chip" id="att-count">0 files</span>
+			</header>
+
+			<div class="dropzone" id="dropzone" tabindex="0" role="button" aria-describedby="drop-help">
+				<svg viewBox="0 0 24 24" aria-hidden="true">
+					<path d="M12 16V4m0 0l-4.5 4.5M12 4l4.5 4.5M4 15v3.5A1.5 1.5 0 005.5 20h13a1.5 1.5 0 001.5-1.5V15"
+						fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+						stroke-linejoin="round" />
+				</svg>
+				<div>
+					<strong>Drop files here</strong> or <span class="link">browse</span>
+					<div class="muted" id="drop-help">PDF, JPG, PNG or WEBP · up to {{ cfg.attachments.maxMb }} MB each
+						· max {{ cfg.attachments.max }} files</div>
+				</div>
+				<input type="file" id="att-input" multiple accept="{{ cfg.attachments.extensions|join(',') }}" hidden>
+			</div>
+
+			<ol class="att-list" id="att-list" aria-label="Attached files, in merge order"></ol>
+			<p class="section-error" data-error-for="attachments" hidden></p>
+
+			<footer class="card-foot result-actions">
+				<button type="button" class="btn btn-ghost" data-action="download-claim">Download claim only</button>
+				<button type="button" class="btn btn-primary" data-action="merge">
+					<svg viewBox="0 0 20 20" aria-hidden="true">
+						<path d="M10 3v10m0 0l-4-4m4 4l4-4M4 16.5h12" fill="none" stroke="currentColor"
+							stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+					<span class="btn-label">Merge &amp; download</span>
+				</button>
+			</footer>
+		</div>
+	</section>
+
+	<div class="mobile-bar">
+		<div><span class="muted">Total</span> <strong id="mobile-total">RM 0.00</strong></div>
+		<button type="button" class="btn btn-primary" data-action="generate"><span class="btn-label">Generate
+				claim</span></button>
+	</div>
+
+	<div class="toasts" id="toasts" aria-live="assertive"></div>
+
+	<script>window.APP_CONFIG = {{ cfg | tojson }};</script>
+	<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+
+</html>
