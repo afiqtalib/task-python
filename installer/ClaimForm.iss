@@ -1,4 +1,4 @@
-; Inno Setup script: builds dist\installer\ClaimForm-Setup-<version>.exe
+; Inno Setup script: builds dist\installer\DBT-Claim-Setup-<version>.exe
 ; Run build_installer.bat rather than compiling this by hand: it builds the app first.
 ; For a new release, raise AppVersion below (keep AppId unchanged so it upgrades in place).
 
@@ -24,7 +24,7 @@ DisableProgramGroupPage=yes
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir=..\dist\installer
-OutputBaseFilename=ClaimForm-Setup-{#AppVersion}
+OutputBaseFilename=DBT-Claim-Setup-{#AppVersion}
 SetupIconFile=..\build\ClaimForm.ico
 Compression=lzma2/max
 SolidCompression=yes

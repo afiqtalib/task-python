@@ -18,7 +18,7 @@ python -m venv .venv
 ## Windows installer
 
 Double-click **`build_installer.bat`**. It runs the tests, builds `dist\ClaimForm\ClaimForm.exe` (PyInstaller)
-and wraps it into **`dist\installer\ClaimForm-Setup-<version>.exe`** (Inno Setup 6, which must be installed).
+and wraps it into **`dist\installer\DBT-Claim-Setup-<version>.exe`** (Inno Setup 6, which must be installed).
 
 The installed app needs no Python. It opens a small console window and the form in the browser
 (`http://127.0.0.1:5055`); closing the window stops it. Starting it again while it runs just reopens

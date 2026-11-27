@@ -1,5 +1,5 @@
 @echo off
-rem Builds the Windows installer: dist\installer\ClaimForm-Setup-<version>.exe
+rem Builds the Windows installer: dist\installer\DBT-Claim-Setup-<version>.exe
 rem Needs the .venv (run run.bat once) and Inno Setup 6 (https://jrsoftware.org/isdl.php).
 setlocal
 cd /d "%~dp0"
@@ -34,7 +34,7 @@ if not defined ISCC (
 
 echo.
 echo Done. Installer:
-dir /b dist\installer\ClaimForm-Setup-*.exe
+dir /b dist\installer\DBT-Claim-Setup-*.exe
 echo (in %CD%\dist\installer)
 pause
 exit /b 0
